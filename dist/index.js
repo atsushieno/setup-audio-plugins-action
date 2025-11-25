@@ -30,6 +30,7 @@ async function run() {
     }
 
     console.log(`Installing ${plugins.length} plugin(s) using studiorack@${version}...`);
+    runStudiorack(["plugins", "list"], version, { useSudo: useSystemScope });
     for (const plugin of plugins) {
       console.log(`::group::Installing ${plugin}`);
       installPlugin(plugin, version, { useSystemScope });

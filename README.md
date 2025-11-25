@@ -1,10 +1,8 @@
 setup-audio-plugins-action is a GitHub Action that installs audio plugins
 through [studiorack-cli](https://github.com/studiorack/studiorack-cli).
-Add it to CI workflows to prepare DAW or plugin host test environments.
-
-The action shells out to `npx @studiorack/cli plugins install <slug>` for
-every entry you provide and therefore always uses the official CLI while
-keeping it scoped to the runner.
+Instead of relying on the npm distribution (which currently stalls on Linux),
+the action clones the studiorack-cli repository, runs `npm ci && npm run build`,
+and executes the freshly-built `build/index.js` to install the requested plugins.
 
 During setup the action reconfigures Studiorack so that `appDir`, `pluginsDir`,
 `presetsDir`, and `projectsDir` all live inside the runner's home directory
@@ -17,7 +15,7 @@ prompts on hosted runners.
 | Name | Required | Description |
 | ---- | -------- | ----------- |
 | `plugins` | yes | Newline separated list of Studiorack plugin slugs (leave empty to skip installs). |
-| `studiorack-version` | no | CLI version or dist-tag passed to `npx` (default `latest`). |
+| `studiorack-version` | no | Git ref (branch or tag) to clone from studiorack-cli (default `latest` → `main`). |
 | `cache` | no | Set to `true` to persist the Studiorack downloads directory across jobs. |
 | `installation-scope` | no | `system` (default) runs via sudo for machine-wide installs on Linux/macOS; `user` keeps installs under the runner home. |
 
@@ -55,3 +53,9 @@ running the optional cache restore/save steps.
 > The default `installation-scope: system` runs the CLI via sudo on Linux/macOS
 > so plugins end up under the standard system locations. Use `installation-scope:
 > user` if you prefer runner-local paths without sudo.
+
+> [!TIP]
+> The first action run for a given `studiorack-version` clones and builds the
+> CLI sources, which can take a minute or two. The compiled tree is cached
+> under `~/.local/share/open-audio-stack/studiorack-cli/<ref>` and reused on
+> subsequent runs that request the same ref.
