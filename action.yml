@@ -1,0 +1,52 @@
+name: Setup Audio Plugins
+description: Install audio plugins with studiorack-cli to prepare host environments.
+author: Atsushi Eno
+inputs:
+  plugins:
+    description: |
+      Newline separated list of Studiorack plugin slugs, for example:
+        asb2m10/dexed
+        sfztools/sfizz
+    required: true
+  studiorack-version:
+    description: studiorack-cli version or dist-tag to install.
+    required: false
+    default: latest
+  cache:
+    description: Toggle caching of the Studiorack downloads directory.
+    required: false
+    default: "false"
+  installation-scope:
+    description: |
+      Choose install scope: `user` (default) keeps everything under the runner home,
+      `system` runs studiorack via sudo for machine-wide installs (Linux/macOS only).
+    required: false
+    default: system
+runs:
+  using: composite
+  steps:
+    - id: prepare
+      name: Detect cache paths
+      shell: bash
+      env:
+        INPUT_PLUGINS: ${{ inputs.plugins }}
+        INPUT_STUDIORACK_VERSION: ${{ inputs.studiorack-version }}
+      run: node "${{ github.action_path }}/dist/prepare.js"
+    - name: Restore Studiorack cache
+      if: inputs.cache == 'true'
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.prepare.outputs.downloads_dir }}
+        key: ${{ runner.os }}-${{ steps.prepare.outputs.cache_key }}
+        restore-keys: |
+          ${{ runner.os }}-${{ steps.prepare.outputs.cache_prefix }}
+    - name: Install audio plugins
+      shell: bash
+      env:
+        INPUT_PLUGINS: ${{ inputs.plugins }}
+        INPUT_STUDIORACK_VERSION: ${{ inputs.studiorack-version }}
+        INPUT_INSTALLATION_SCOPE: ${{ inputs.installation-scope }}
+      run: node "${{ github.action_path }}/dist/index.js"
+branding:
+  icon: package
+  color: blue
