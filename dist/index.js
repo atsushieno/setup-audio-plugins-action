@@ -2,27 +2,17 @@
 
 const { configureInstallDirs, getInput, normalizePlugins, runStudiorack } = require("./lib.js");
 
-function installPlugin(plugin, version, { useSystemScope }) {
-  runStudiorack(["plugins", "install", plugin], version, { useSudo: useSystemScope });
+function installPlugin(plugin, version) {
+  runStudiorack(["plugins", "install", plugin], version);
 }
 
 async function run() {
   try {
     const pluginsInput = getInput("plugins", { required: true });
     const plugins = normalizePlugins(pluginsInput);
-    const version = getInput("studiorack-version", { defaultValue: "latest" });
-    const installScope = getInput("installation-scope", { defaultValue: "user" }).toLowerCase();
-    const useSystemScope = installScope === "system";
+    const version = "3.0.1";
 
-    if (!["user", "system"].includes(installScope)) {
-      throw new Error('installation-scope must be either "user" or "system"');
-    }
-
-    if (!useSystemScope) {
-      configureInstallDirs(version);
-    } else {
-      console.log("Using system-wide installation scope (requires sudo).");
-    }
+    configureInstallDirs(version);
 
     if (plugins.length === 0) {
       console.log("No plugin slugs provided. Skipping Studiorack installation.");
@@ -30,10 +20,10 @@ async function run() {
     }
 
     console.log(`Installing ${plugins.length} plugin(s) using studiorack@${version}...`);
-    runStudiorack(["plugins", "list"], version, { useSudo: useSystemScope });
+    runStudiorack(["plugins", "list"], version);
     for (const plugin of plugins) {
       console.log(`::group::Installing ${plugin}`);
-      installPlugin(plugin, version, { useSystemScope });
+      installPlugin(plugin, version);
       console.log(`::endgroup::`);
     }
   } catch (error) {

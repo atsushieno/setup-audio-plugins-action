@@ -6,8 +6,6 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 
-const STUDIORACK_REPO = "https://github.com/studiorack/studiorack-cli.git";
-
 function normalizeInputName(name) {
   return name
     .replace(/\s+/g, "_")
@@ -53,17 +51,16 @@ function createCacheKey(plugins, version) {
 }
 
 function runStudiorack(args, version, { useSudo = false } = {}) {
-  const cliEntrypoint = ensureStudiorackCli(version);
   const env = { ...process.env };
-  const nodeCmd = process.execPath;
-  let command = nodeCmd;
-  let commandArgs = [cliEntrypoint, ...args];
+  let command = "npx";
+  let commandArgs = [`@studiorack/cli@${version}`, ...args];
+
   if (useSudo) {
     if (process.platform === "win32") {
       throw new Error("System-wide installs via sudo are not supported on Windows runners.");
     }
     command = "sudo";
-    commandArgs = ["-n", nodeCmd, ...commandArgs];
+    commandArgs = ["-n", "npx", ...commandArgs];
   }
 
   const result = spawnSync(command, commandArgs, { stdio: "inherit", env });
@@ -93,56 +90,6 @@ function configureInstallDirs(version) {
   return dirMap;
 }
 
-function ensureStudiorackCli(version) {
-  const ref = version === "latest" ? "main" : version;
-  const normalizedRef = ref.replace(/[^a-zA-Z0-9._-]/g, "_");
-  const baseDir = path.join(resolveAppDir(), "studiorack-cli", normalizedRef);
-  const entry = path.join(baseDir, "build", "index.js");
-
-  if (fs.existsSync(entry)) {
-    return entry;
-  }
-
-  ensureDir(path.dirname(baseDir));
-  cloneRepo(ref, baseDir);
-  installDependencies(baseDir);
-  buildCli(baseDir);
-
-  if (!fs.existsSync(entry)) {
-    throw new Error(`Failed to build studiorack-cli (missing ${entry})`);
-  }
-
-  return entry;
-}
-
-function cloneRepo(ref, destination) {
-  if (fs.existsSync(destination)) {
-    return;
-  }
-
-  const gitCmd = process.platform === "win32" ? "git.exe" : "git";
-  const args = ["clone", "--depth", "1", "--branch", ref, STUDIORACK_REPO, destination];
-  const result = spawnSync(gitCmd, args, { stdio: "inherit" });
-  if (result.status !== 0) {
-    throw new Error(`Failed to clone studiorack-cli (${ref})`);
-  }
-}
-
-function installDependencies(directory) {
-  const npmCmd = process.platform === "win32" ? "npm.cmd" : "npm";
-  const result = spawnSync(npmCmd, ["ci"], { cwd: directory, stdio: "inherit" });
-  if (result.status !== 0) {
-    throw new Error("npm ci failed for studiorack-cli");
-  }
-}
-
-function buildCli(directory) {
-  const npmCmd = process.platform === "win32" ? "npm.cmd" : "npm";
-  const result = spawnSync(npmCmd, ["run", "build"], { cwd: directory, stdio: "inherit" });
-  if (result.status !== 0) {
-    throw new Error("npm run build failed for studiorack-cli");
-  }
-}
 
 module.exports = {
   getInput,
