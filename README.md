@@ -1,3 +1,5 @@
+It is a hacky project that @atsushieno let Claude Code write almost everything.
+
 setup-audio-plugins-action is a GitHub Action that installs audio plugins
 through [studiorack-cli](https://github.com/studiorack/studiorack-cli).
 The action uses `npx @studiorack/cli` to install the requested plugins.

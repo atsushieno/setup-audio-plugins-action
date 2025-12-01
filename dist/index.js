@@ -10,7 +10,7 @@ async function run() {
   try {
     const pluginsInput = getInput("plugins", { required: true });
     const plugins = normalizePlugins(pluginsInput);
-    const version = "3.0.1";
+    const version = "3.0.2";
 
     configureInstallDirs(version);
 

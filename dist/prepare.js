@@ -16,7 +16,7 @@ function writeOutput(name, value) {
 async function run() {
   try {
     const pluginsInput = getInput("plugins", { required: true });
-    const version = "3.0.1";
+    const version = "3.0.2";
     const plugins = normalizePlugins(pluginsInput);
     const appDir = resolveAppDir();
     const downloadsDir = path.join(appDir, "downloads");

@@ -53,7 +53,7 @@ function createCacheKey(plugins, version) {
 function runStudiorack(args, version, { useSudo = false } = {}) {
   const env = { ...process.env };
   let command = "npx";
-  let commandArgs = [`@studiorack/cli@${version}`, ...args];
+  let commandArgs = [`@atsushieno/studiorack-cli@${version}`, ...args];
 
   if (useSudo) {
     if (process.platform === "win32") {
