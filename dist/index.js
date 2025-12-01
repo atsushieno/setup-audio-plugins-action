@@ -3,7 +3,8 @@
 const { configureInstallDirs, getInput, normalizePlugins, runStudiorack } = require("./lib.js");
 
 function installPlugin(plugin, version) {
-  runStudiorack(["plugins", "install", plugin], version);
+  const needsSudo = process.platform === "linux" || process.platform === "darwin";
+  runStudiorack(["plugins", "install", plugin], version, { useSudo: needsSudo });
 }
 
 async function run() {

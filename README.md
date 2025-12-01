@@ -4,11 +4,9 @@ setup-audio-plugins-action is a GitHub Action that installs audio plugins
 through [studiorack-cli](https://github.com/studiorack/studiorack-cli).
 The action uses `npx @studiorack/cli` to install the requested plugins.
 
-During setup the action reconfigures Studiorack so that `appDir`, `pluginsDir`,
-`presetsDir`, and `projectsDir` all live inside the runner's home directory
-(`~/.local/share/open-audio-stack/...` on Linux, `~/Library/...` on macOS,
-`%APPDATA%` on Windows). That keeps installs user-scoped and avoids elevation
-prompts on hosted runners.
+The action installs plugins system-wide and requires sudo privileges on
+Linux and macOS. On GitHub Actions hosted runners, sudo access is available
+without password prompts, so the installation works seamlessly.
 
 ## Inputs
 
