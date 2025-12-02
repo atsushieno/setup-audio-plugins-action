@@ -4,7 +4,7 @@ const { configureInstallDirs, getInput, normalizePlugins, runStudiorack } = requ
 
 function installPlugin(plugin, version) {
   const needsSudo = process.platform === "linux" || process.platform === "darwin";
-  runStudiorack(["plugins", "install", plugin], version, { useSudo: needsSudo });
+  runStudiorack(["plugins", "install", plugin, "--log"], version, { useSudo: needsSudo });
 }
 
 async function run() {
